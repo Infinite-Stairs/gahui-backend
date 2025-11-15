@@ -23,16 +23,11 @@ async def receive_sensor_event(data: SensorInput):
 
         # Unity로 최소 신호 전송
         await send_to_unity({"action": "step"})
-        await send_to_dashboard({
-            "action": "sensor_update",
-            "sensor_type": event,
-            "total_steps": step_data["steps"]
-        })
 
         return {"status": "ok", "message": f"{event} 감지됨"}
 
     elif event in ["MEASURE_START", "MEASURE_FINISH"]:
-        game_handler.measure_active = (event == "MEASURE_START")
+        game_handler.measure_active = (event == "MEASURE_START") #-> 위에 step 도 event 로 받는데 이것도 event 로 받아도되나?
         await send_to_dashboard({
             "action": event.lower()
         })

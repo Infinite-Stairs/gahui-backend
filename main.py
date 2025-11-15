@@ -3,7 +3,7 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from db.session import engine
 from db import models
-from websocket import unity_ws, dashboard_ws
+from websocket import unity_ws, dashboard_ws, pi_ws
 from api import sensor, game_state, results
 
 # FastAPI 앱 초기화
@@ -44,6 +44,10 @@ async def dashboard_socket(websocket: WebSocket):
     """Dashboard ↔ Server WebSocket 통신"""
     await dashboard_ws.dashboard_endpoint(websocket)
 
+@app.websocket("/ws/pi")
+async def pi_socket(websocket: WebSocket):
+    await pi_ws.pi_endpoint(websocket)
+
 
 # 서버 기동 확인용 기본 루트
 @app.get("/")
@@ -53,3 +57,6 @@ async def root():
 
 # 실행 (로컬 개발용)
 # uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+
+

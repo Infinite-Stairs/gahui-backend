@@ -1,12 +1,15 @@
 # app/db/models.py
-from sqlalchemy import Column, Integer, Float, String, DateTime, Boolean
+from sqlalchemy import Column, Date, Integer, Float, String
 from sqlalchemy.sql import func
 from .session import Base
 
 class GameResult(Base):
     __tablename__ = "game_results"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True) # 고유 id / 플레이날짜+넘버링 -> 추후 스트릭 데이터로 활용할 수 있게 가공하는 기능 필요
+    # 고유 id
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    # 플레이 날짜
+    play_date = Column(Date, nullable=False) #YYYY-MM-DD 저장
 
     # 게임 관련 데이터
     steps = Column(Integer, nullable=False, default=0)           # 계단 수

@@ -1,5 +1,5 @@
 # app/db/models.py
-from sqlalchemy import Column, Date, Integer, Float, String
+from sqlalchemy import Column, Date, DateTime, Integer, Float, String
 from sqlalchemy.sql import func
 from .session import Base
 
@@ -15,9 +15,8 @@ class GameResult(Base):
     steps = Column(Integer, nullable=False, default=0)           # 계단 수
     calories = Column(Float, nullable=False, default=0.0)         # 소모 칼로리
 
-    # 라즈베리파이/유니티 통신에서 받은 센서 정보 (선택적)
-    sensor_value = Column(Float, nullable=True)                   # 마지막 센서값
-    sensor_status = Column(String, nullable=True)                 # 센서 상태 (예: 'active', 'idle')
+    sensor_type = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
     def __repr__(self):

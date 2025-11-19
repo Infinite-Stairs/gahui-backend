@@ -24,7 +24,7 @@ app.add_middleware(
 
 # 라우터 등록 (REST API)
 app.include_router(sensor.router, prefix="/api/sensor", tags=["Sensor"])
-app.include_router(game_state.router, prefix="/api/game/state", tags=["GameState"])
+app.include_router(game_state.router, prefix="/api/game", tags=["GameState"])
 app.include_router(results.router, prefix="/api/game/results", tags=["GameResults"])
 
 
@@ -55,8 +55,10 @@ async def root():
     return {"status": "ok", "message": "Smart Step Game API Server Running"}
 
 
+# 가상환경 활성화
+# .\venv\Scripts\activate
 # 실행 (로컬 개발용)
-# uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 
 

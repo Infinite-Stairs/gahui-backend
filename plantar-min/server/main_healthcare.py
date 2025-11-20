@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query
-from .db import init_schema, insert_result, fetch_latest
-from .models import IngestRequest, IngestResponse
+from .db_healthcare import init_schema, insert_result, fetch_latest
+from .models_healthcare import IngestRequest, IngestResponse
 from .compute import compute_all
 
 app = FastAPI(title="Plantar-min API (CoP + stddev)", version="2.0")

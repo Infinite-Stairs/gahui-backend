@@ -1,11 +1,22 @@
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from .db_healthcare import init_schema, insert_result, fetch_latest
 from .models_healthcare import IngestRequest, IngestResponse
 from .compute import compute_all
 
+
 app = FastAPI(title="Plantar-min API (CoP + stddev)", version="2.0")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],      # 모든 도메인 허용
+    allow_credentials=True,
+    allow_methods=["*"],      # 모든 HTTP 메서드 허용 (GET, POST 등)
+    allow_headers=["*"],      # 모든 헤더 허용
+)
+
 init_schema()
+
 
 @app.post("/ingest", response_model=IngestResponse)
 def ingest(req: IngestRequest):

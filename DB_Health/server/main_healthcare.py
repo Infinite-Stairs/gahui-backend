@@ -7,9 +7,13 @@ from .compute import compute_all
 
 app = FastAPI(title="Plantar-min API (CoP + stddev)", version="2.0")
 
+origins = [
+    "https://dowhile001.vercel.app/"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],      # 모든 도메인 허용
+    allow_origins=origins,      # 모든 도메인 허용
     allow_credentials=True,
     allow_methods=["*"],      # 모든 HTTP 메서드 허용 (GET, POST 등)
     allow_headers=["*"],      # 모든 헤더 허용
@@ -63,3 +67,6 @@ def latest(n: int = Query(5, ge=1, le=200)):
 @app.get("/metrics")
 def metrics(n: int = Query(20, ge=1, le=500)):
     return fetch_latest(n)
+
+#서버 포트 고정
+#uvicorn DB_Health.server.main_healthcare:app --reload --port 8000

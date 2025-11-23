@@ -12,11 +12,13 @@ app = FastAPI(
     version="1.0.0",
     description="AI 기반 스마트 스텝박스 및 족저압 센서 연동 서버"
 )
-
+origins = [
+    "https://dowhile001.vercel.app/"
+]
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 개발단계에서는 전체 허용
+    allow_origins=origins,  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -58,7 +60,7 @@ async def root():
 # 가상환경 활성화
 # .\venv\Scripts\activate
 # 실행 (로컬 개발용)
-# uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# uvicorn Function.main:app --reload --host 0.0.0.0 --port 8001
 
 
 

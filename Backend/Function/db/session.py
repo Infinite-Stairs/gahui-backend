@@ -1,14 +1,17 @@
 # app/db/session.py
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# PostgreSQL 연결 설정
-# DB 정보: user, password, host, port, dbname
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:2302@localhost:5432/game_results"
+# Render 환경 변수에서 DATABASE_URL 가져오기
+DATABASE_URL = os.environ.get("postgresql://gahui:UTMyUVGeVjcQ3tTbw3Pd3flix2ce8Hft@dpg-d4i0n32li9vc73eg01eg-a/game_results_tpj5")  # Render에 설정한 DB URL
 
-# PostgreSQL은 connect_args 필요 없음
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL 환경 변수가 설정되지 않았습니다!")
+
+# PostgreSQL 연결
+engine = create_engine(DATABASE_URL)
 
 # 세션 생성
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

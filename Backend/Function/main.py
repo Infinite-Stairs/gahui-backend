@@ -13,7 +13,8 @@ app = FastAPI(
     description="AI 기반 스마트 스텝박스 및 족저압 센서 연동 서버"
 )
 origins = [
-    "https://dowhile001.vercel.app/"
+    "https://dowhile001.vercel.app/",
+    "https://gahui-backend.onrender.com"
 ]
 # CORS 설정
 app.add_middleware(
@@ -61,6 +62,8 @@ async def root():
 # .\venv\Scripts\activate
 # 실행 (로컬 개발용)
 # uvicorn Function.main:app --reload --host 0.0.0.0 --port 8001
+# 로컬 실행 수정
+# python -m uvicorn main:app --reload
 
 
 

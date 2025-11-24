@@ -1,14 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+# app/api/game_state.py
+
+from fastapi import APIRouter, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
 from db.session import get_db
 from game.handler import game_handler
-from pydantic import BaseModel
 
 router = APIRouter(tags=["game"])
-
-
-class ScoreRequest(BaseModel):
-    stairCount: int
 
 
 # 게임 시작 ======================================
@@ -23,37 +20,35 @@ async def start_game(db: Session = Depends(get_db)):
 
 # 게임 종료 ======================================
 @router.post("/end")
-async def end_game(db: Session = Depends(get_db)):
-    if not game_handler.is_playing:
-        raise HTTPException(status_code=400, detail="진행 중인 게임이 없습니다.")
-
-    # 게임 종료 처리
-    result = game_handler.end_game(db)
+async def end_game(
+    steps: int = Form(..., description="Unity 측에서 보낸 걸음 수"),
+    db: Session = Depends(get_db)
+):
+    """Unity에서 steps를 Form-Data로 받음"""
+    result = game_handler.end_game(db=db, unity_steps=steps)
 
     if result is None:
         raise HTTPException(status_code=500, detail="게임 종료 처리 실패")
 
-    return {"status": "ok", "message": "게임이 종료되었습니다."}
-
-
-# 점수 저장 ======================================
-@router.post("/score/submit")
-async def submit_score(request: ScoreRequest, db: Session = Depends(get_db)):
-    if not game_handler.is_playing:
-        raise HTTPException(status_code=400, detail="게임이 진행되지 않았습니다.")
-
-    # Unity에서 전달한 stairCount 저장
-    game_handler.current_steps = request.stairCount
-    result = game_handler.save_score(db, unity_steps=request.stairCount)
-
-    if result is None:
-        raise HTTPException(status_code=500, detail="점수 저장 실패")
-
     return {
         "status": "ok",
-        "message": "점수가 저장되었습니다.",
+        "message": "게임이 종료되었습니다.",
         "result": {
             "steps": result.steps,
             "calories": result.calories
         }
+    }
+
+
+# 점수 저장 ======================================
+@router.post("/score/submit")
+async def submit_score(
+    stairCount: int = Form(..., description="Unity에서 전달한 stairCount 값"),
+    db: Session = Depends(get_db)
+):
+    """임시 점수 저장 테스트 API"""
+    return {
+        "status": "ok",
+        "message": "점수 저장 완료",
+        "stairs": stairCount
     }

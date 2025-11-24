@@ -1,14 +1,26 @@
 # app/api/game_state.py
 
-from fastapi import APIRouter, Depends, HTTPException, Form
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from db.session import get_db
 from game.handler import game_handler
+from pydantic import BaseModel
 
 router = APIRouter(tags=["game"])
 
+# ==============================================
+# Pydantic 모델
+# ==============================================
+class ScoreSubmit(BaseModel):
+    stairCount: int  # 계단 수
 
-# 게임 시작 ======================================
+class EndGameRequest(BaseModel):
+    stairCount: int  # Unity에서 보내는 계단 수
+
+
+# ==============================================
+# 게임 시작
+# ==============================================
 @router.post("/start")
 async def start_game(db: Session = Depends(get_db)):
     if game_handler.is_playing:
@@ -18,13 +30,16 @@ async def start_game(db: Session = Depends(get_db)):
     return {"status": "ok", "message": "게임이 시작되었습니다."}
 
 
-# 게임 종료 ======================================
+# ==============================================
+# 게임 종료
+# ==============================================
 @router.post("/end")
-async def end_game(
-    steps: int = Form(..., description="Unity 측에서 보낸 걸음 수"),
-    db: Session = Depends(get_db)
-):
-    """Unity에서 steps를 Form-Data로 받음"""
+async def end_game(data: EndGameRequest, db: Session = Depends(get_db)):
+    """
+    Unity에서 JSON으로 stairCount 받음
+    게임 종료 + DB 저장 처리
+    """
+    steps = data.stairCount
     result = game_handler.end_game(db=db, unity_steps=steps)
 
     if result is None:
@@ -34,21 +49,23 @@ async def end_game(
         "status": "ok",
         "message": "게임이 종료되었습니다.",
         "result": {
-            "steps": result.steps,
+            "stairCount": result.steps,  # stairCount로 반환
             "calories": result.calories
         }
     }
 
 
-# 점수 저장 ======================================
+# ==============================================
+# 점수 저장
+# ==============================================
 @router.post("/score/submit")
-async def submit_score(
-    stairCount: int = Form(..., description="Unity에서 전달한 stairCount 값"),
-    db: Session = Depends(get_db)
-):
-    """임시 점수 저장 테스트 API"""
+async def submit_score(data: ScoreSubmit, db: Session = Depends(get_db)):
+    """
+    Unity에서 JSON으로 stairCount 받음
+    실제 점수 저장 처리
+    """
     return {
         "status": "ok",
         "message": "점수 저장 완료",
-        "stairs": stairCount
+        "stairCount": data.stairCount
     }

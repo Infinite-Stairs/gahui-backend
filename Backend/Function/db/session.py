@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Render 환경 변수에서 DATABASE_URL 가져오기
-DATABASE_URL = os.environ.get("postgresql://gahui:UTMyUVGeVjcQ3tTbw3Pd3flix2ce8Hft@dpg-d4i0n32li9vc73eg01eg-a/game_results_tpj5")  # Render에 설정한 DB URL
+DATABASE_URL = os.environ.get("DATABASE_URL")  # Render에 설정한 DB URL
 
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL 환경 변수가 설정되지 않았습니다!")

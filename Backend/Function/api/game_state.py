@@ -12,7 +12,7 @@ class ScoreRequest(BaseModel):
 
 
 # 게임 시작 ======================================
-@router.post("/game/start")
+@router.post("/start")
 async def start_game(db: Session = Depends(get_db)):
     if game_handler.is_playing:
         raise HTTPException(status_code=400, detail="게임이 이미 진행 중입니다.")
@@ -22,7 +22,7 @@ async def start_game(db: Session = Depends(get_db)):
 
 
 # 게임 종료 ======================================
-@router.post("/game/end")
+@router.post("/end")
 async def end_game(db: Session = Depends(get_db)):
     if not game_handler.is_playing:
         raise HTTPException(status_code=400, detail="진행 중인 게임이 없습니다.")

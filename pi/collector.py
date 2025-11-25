@@ -16,7 +16,9 @@ def main():
         raw = ser.readline().decode(errors="ignore").strip()
         if not raw:
             continue
-
+        
+        print("RAW:", raw)
+         
         # 아두이노 measureMode()의 DATA 라인 처리
         if raw.startswith("DATA"):
             parts = raw.split(",")
@@ -61,3 +63,6 @@ def main():
                 )
             except Exception as e:
                 print("[err] POST failed:", e)
+                
+if __name__ == "__main__":
+    main()

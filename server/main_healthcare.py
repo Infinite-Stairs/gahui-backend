@@ -91,3 +91,22 @@ def latest(n: int = Query(5, ge=1, le=200)):
 @app.get("/metrics")
 def metrics(n: int = Query(20, ge=1, le=500)):
     return fetch_latest(n)
+
+
+#collector.py 자동 작동을 위한 것 - 프론트 필요 없음
+is_collecting = False   # 전역 변수
+
+@app.post("/control")
+def set_control(run: bool):
+    """
+    run=True  → 수집 시작
+    run=False → 수집 정지
+    """
+    global is_collecting
+    is_collecting = run
+    return {"ok": True, "is_collecting": is_collecting}
+
+@app.get("/control")
+def get_control():
+    """collector가 현재 상태를 조회할 때 쓰는 API"""
+    return {"is_collecting": is_collecting}

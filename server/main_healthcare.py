@@ -26,7 +26,7 @@ init_schema()
 def ingest(req: IngestRequest):
     """
     라즈베리파이(또는 노트북 시리얼 리더)에서 10초 윈도우 요약을 보내는 엔드포인트.
-
+    
     1) 좌/우 퍼센트, CoP, 정상/의심 여부 계산 (compute_all)
     2) DB에 한 레코드로 저장
     3) 프론트/라즈베리에 지표만 응답
@@ -85,17 +85,9 @@ def ingest(req: IngestRequest):
 
 @app.get("/latest")
 def latest(n: int = Query(5, ge=1, le=200)):
-    """
-    가장 최근 n개 측정 결과를 그대로 반환.
-    (DB 컬럼 전체를 보고 싶을 때)
-    """
     return fetch_latest(n)
 
 
 @app.get("/metrics")
 def metrics(n: int = Query(20, ge=1, le=500)):
-    """
-    추후 메트릭 전용으로 가공할 수 있는 엔드포인트.
-    지금은 /latest와 동일하게 plantar_result 최근 n개를 반환.
-    """
     return fetch_latest(n)

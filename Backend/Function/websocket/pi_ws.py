@@ -21,30 +21,3 @@ async def pi_endpoint(websocket: WebSocket):
 
 
 
-#0,1 신호 받는 라즈베리파이 코드, 웹소켓 보유 가정
-# import asyncio
-# import websockets
-# import json
-
-# SERVER_URL = "ws://YOUR_SERVER_IP:8000/ws/pi"
-
-# async def listen():
-#     async with websockets.connect(SERVER_URL) as ws:
-#         print("Connected to server")
-
-#         while True:
-#             msg = await ws.recv()
-#             data = json.loads(msg)
-
-#             game_active = data.get("game_active")
-#             print("Received:", game_active)
-
-#             if game_active == 1:
-#                 print("🔥 게임 시작 → 하드웨어 ON")
-#                 # GPIO 동작 코드
-#             elif game_active == 0:
-#                 print("🛑 게임 종료 → 하드웨어 OFF")
-#                 # GPIO 끄기
-
-# asyncio.run(listen())
-

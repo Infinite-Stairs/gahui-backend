@@ -40,3 +40,4 @@ async def unity_endpoint(websocket: WebSocket):
         await disconnect_client(websocket, client_type="unity")
         print("[WS] Unity client disconnected")
 
+# state 가 Unity 에서 뭐가 나오는지, 어떻게 받는지 등등

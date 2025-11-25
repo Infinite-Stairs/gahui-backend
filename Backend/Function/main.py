@@ -66,5 +66,10 @@ async def root():
 # 로컬 실행 수정
 # python -m uvicorn main:app --reload
 
+# DB 결과 보기
+# SELECT id, steps, calories, sensor_type, play_date, created_at
+# FROM game_results
+# ORDER BY id DESC
+# LIMIT 10;
 
 

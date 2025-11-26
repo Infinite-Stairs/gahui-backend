@@ -5,7 +5,7 @@ from game.handler import game_handler
 from websocket.manager import send_to_unity, send_to_dashboard
 from utils.logger import logger
 
-router = APIRouter(prefix="/api/sensor", tags=["sensor"])
+router = APIRouter(prefix="/sensor", tags=["sensor"])
 
 class SensorInput(BaseModel):
     event_type: str  # STEP, H_STEP, measure_start, measure_finish

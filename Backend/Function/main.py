@@ -27,7 +27,7 @@ app.add_middleware(
 )
 
 # 라우터 등록 (REST API)
-app.include_router(sensor.router, prefix="/api/sensor", tags=["Sensor"])
+app.include_router(sensor.router, prefix="/api", tags=["Sensor"])
 app.include_router(game_state.router, prefix="/api/game", tags=["GameState"])
 app.include_router(results.router, prefix="/api/game/results", tags=["GameResults"])
 

@@ -70,3 +70,20 @@ def get_daily_summary(
         "total_steps": result.total_steps or 0,
         "total_calories": float(result.total_calories or 0),
     }
+
+# 모든 계단 수 총 합 API
+@router.get("/summary")
+def get_total_summary(db: Session = Depends(get_db)):
+    query = (
+        db.query(
+            func.sum(GameResult.steps).label("total_steps"),
+            func.sum(GameResult.calories).label("total_calories"),
+        )
+    )
+
+    result = query.first()
+
+    return {
+        "total_steps": result.total_steps or 0,
+        "total_calories": float(result.total_calories or 0),
+    }

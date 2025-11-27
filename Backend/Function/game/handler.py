@@ -13,7 +13,7 @@ class GameHandler:
     게임 상태 및 스텝 카운팅 관리
     """
 
-    def __init__(self):
+    def __init__(self): 
         self.is_playing = False
         self.measure_active = False
         self.current_sensor_type = None  # 현재 게임의 센서 타입 (STEP or H_STEP)

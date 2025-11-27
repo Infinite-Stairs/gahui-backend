@@ -15,7 +15,8 @@ app = FastAPI(
 origins = [
     "https://dowhile001.vercel.app",
     "https://gahui-backend.onrender.com",
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "http://192.168.147.60"
 ]
 # CORS 설정
 app.add_middleware(

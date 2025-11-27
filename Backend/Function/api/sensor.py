@@ -7,6 +7,8 @@ from utils.logger import logger
 
 router = APIRouter(prefix="/sensor", tags=["sensor"])
 
+print("파일 시작")
+
 class SensorInput(BaseModel):
     event_type: str  # STEP, H_STEP, measure_start, measure_finish
 
@@ -20,6 +22,7 @@ async def receive_sensor_event(data: SensorInput):
             return {"status": "ignored", "reason": "게임이 진행 중이 아닙니다."}
         
         step_data = game_handler.add_step(event)
+        print("전송")
 
         # Unity로 최소 신호 전송
         await send_to_unity({"action": "step"})

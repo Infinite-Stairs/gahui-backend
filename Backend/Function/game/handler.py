@@ -1,12 +1,15 @@
-# handler.py
 import asyncio
+import requests  # [추가] 옆집(Func2) 서버와 통신하기 위해 필요
 from datetime import date
 from sqlalchemy.orm import Session
 from db.models import GameResult
 from utils.logger import logger
-from websocket.manager import send_to_pi  
+# from websocket.manager import send_to_pi # [삭제] 웹소켓 방식 대신 HTTP 사용
 
 BASE_CALORIE = 0.2
+
+# [핵심] Func2 (센서/하드웨어 서버)의 주소 (포트 8000)
+FUNC2_CONTROL_URL = "http://127.0.0.1:8000/api/control"
 
 class GameHandler:
     """
@@ -16,15 +19,16 @@ class GameHandler:
     def __init__(self): 
         self.is_playing = False
         self.measure_active = False
-        self.current_sensor_type = None  # 현재 게임의 센서 타입 (STEP or H_STEP)
+        self.current_sensor_type = None
 
     def start_game(self):
         """게임 시작"""
         self.is_playing = True
         self.current_sensor_type = None
         logger.info("[GAME] 게임 시작 - 센서 타입 초기화")
-        # Pi WebSocket으로 상태 전송
-        asyncio.create_task(self.send_pi_state())
+        
+        # [수정] Func2(하드웨어 서버)에게 "아두이노 켜!" 신호 전송
+        self.send_hardware_signal(True)
 
     def add_step(self, sensor_type: str) -> dict:
         if not self.is_playing:
@@ -70,8 +74,9 @@ class GameHandler:
             # 게임 상태 초기화
             self.is_playing = False
             self.current_sensor_type = None
-            # Pi WebSocket으로 상태 전송
-            asyncio.create_task(self.send_pi_state())
+            
+            # [수정] Func2(하드웨어 서버)에게 "아두이노 꺼!" 신호 전송
+            self.send_hardware_signal(False)
 
             return result
 
@@ -80,14 +85,31 @@ class GameHandler:
             db.rollback()
             return None
 
-    # ================================
-    # Pi WebSocket 전송 기능 추가
-    # ================================
-    async def send_pi_state(self):
-        """Pi WebSocket으로 is_playing 상태 전송"""
-        msg = {"game_active": 1 if self.is_playing else 0}
-        await send_to_pi(msg)
-
+    # =========================================================
+    # [새로운 기능] Func2 (8000번 포트)로 제어 신호 보내기
+    # =========================================================
+    def send_hardware_signal(self, is_active: bool):
+        """
+        Func1(8001) -> Func2(8000)로 HTTP 요청을 보냄
+        is_active: True(시작), False(종료)
+        """
+        try:
+            # Func2의 /api/control 엔드포인트 호출
+            # 쿼리 파라미터로 run=true 또는 run=false 전달
+            response = requests.post(
+                FUNC2_CONTROL_URL, 
+                params={"run": is_active}, 
+                timeout=1
+            )
+            
+            if response.status_code == 200:
+                logger.info(f"[Hardware] 신호 전송 성공: {is_active}")
+            else:
+                logger.warning(f"[Hardware] 전송 실패 code: {response.status_code}")
+                
+        except Exception as e:
+            logger.error(f"[Hardware] Func2 서버(8000) 연결 실패: {e}")
+            logger.error("Func2 서버가 켜져 있는지 확인해주세요.")
 
 # 전역 게임 핸들러 인스턴스
 game_handler = GameHandler()

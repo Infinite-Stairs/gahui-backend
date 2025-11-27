@@ -12,16 +12,16 @@ app = FastAPI(
     version="1.0.0",
     description="AI 기반 스마트 스텝박스 및 족저압 센서 연동 서버"
 )
-origins = [
-    "https://dowhile001.vercel.app",
-    "https://gahui-backend.onrender.com",
-    "http://localhost:5173",
-    "http://192.168.147.60"
-]
+# origins = [
+#     "https://dowhile001.vercel.app",
+#     "https://gahui-backend.onrender.com",
+#     "http://localhost:5173",
+#     "http://192.168.147.60"
+# ]
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  
+    allow_origin_regex=".*", 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

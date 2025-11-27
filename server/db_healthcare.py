@@ -4,7 +4,7 @@ from psycopg2.extras import RealDictCursor
 from contextlib import contextmanager
 from typing import Any, Dict, List
 
-DB_DSN = os.getenv("DB_DSN", "dbname=plantar_db user=postgres host=127.0.0.1 port=5432")
+DB_DSN = os.getenv("DB_DSN", "postgresql://plantar_min_db_user:HFRT1QPoIxlpErmhrfRTKOwS4XVjOS9P@dpg-d4i358ggjchc73dk5de0-a.oregon-postgres.render.com/plantar_min_db?sslmode=require")
 
 @contextmanager
 def get_conn():

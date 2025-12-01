@@ -5,15 +5,13 @@ from sqlalchemy.orm import Session
 from db.session import get_db
 from game.handler import game_handler
 from pydantic import BaseModel
+import serial
 import sys, os
 
-# =================================================================
-# [★핵심 수정] Func1 전용 공유 메모장 가져오기
-# 이제 Func2나 복잡한 경로 설정 없이 바로 가져옵니다.
-# =================================================================
-from global_state import state
-
 router = APIRouter(tags=["game"])
+
+ARDUINO_PORT = '/dex/ttyACM0'  # 윈도우라면 COM3, 라즈베리파이라면 /dev/ttyACM0 등
+BAUD_RATE = 9600
 
 # ==============================================
 # Pydantic 모델
@@ -25,43 +23,13 @@ class EndGameRequest(BaseModel):
     stairCount: int
 
 # ==============================================
-# [직접 전송 함수] state를 통해 아두이노 제어
-# ==============================================
-def send_direct_to_arduino(command: str):
-    """
-    Func1/global_state.py에 저장된 시리얼 연결을 통해 즉시 전송
-    """
-    try:
-        # 1. state에 시리얼 연결이 존재하는지, 열려있는지 확인
-        if state.serial_connection is not None and state.serial_connection.is_open:
-            # 2. 직접 전송 (Write)
-            msg = f"{command}\n" # 줄바꿈 문자 포함
-            state.serial_connection.write(msg.encode())
-            state.serial_connection.flush() # 즉시 전송
-            print(f">>> [Direct] 아두이노로 '{command}' 발사 성공! 🚀")
-        else:
-            print(f">>> [Direct] ⚠️ 시리얼 포트가 연결되어 있지 않습니다. (main.py 확인)")
-            
-    except Exception as e:
-        print(f">>> [Direct] ❌ 전송 실패: {e}")
-
-# ==============================================
 # 게임 시작
 # ==============================================
 @router.post("/start")
 async def start_game(db: Session = Depends(get_db)):
-    # 게임 중복 시작 방지
     if game_handler.is_playing:
         raise HTTPException(status_code=400, detail="게임이 이미 진행 중입니다.")
-
     game_handler.start_game()
-
-    # [1] 데이터 수집 시작 (논리적 플래그)
-    state.is_collecting = True
-    
-    # [2] 아두이노 물리적 켜기 (직접 명령)
-    send_direct_to_arduino("1")
-
     return {"status": "ok", "message": "게임이 시작되었습니다."}
 
 
@@ -72,16 +40,9 @@ async def start_game(db: Session = Depends(get_db)):
 async def end_game(data: EndGameRequest, db: Session = Depends(get_db)):
     steps = data.stairCount
     result = game_handler.end_game(db=db, unity_steps=steps)
-
     if result is None:
         raise HTTPException(status_code=500, detail="게임 종료 처리 실패")
-
-    # [1] 데이터 수집 중단 (논리적 플래그)
-    state.is_collecting = False
     
-    # [2] 아두이노 물리적 끄기 (직접 명령)
-    send_direct_to_arduino("0")
-
     return {
         "status": "ok",
         "message": "게임이 종료되었습니다.",
@@ -97,6 +58,23 @@ async def end_game(data: EndGameRequest, db: Session = Depends(get_db)):
 # ==============================================
 @router.post("/score/submit")
 async def submit_score(data: ScoreSubmit, db: Session = Depends(get_db)):
+    
+    # [1] 아두이노로 '0' 전송 로직 (일회성 연결)
+    try:
+        # with 구문을 쓰면 통신 후 자동으로 close() 해줍니다.
+        # timeout=1은 연결이 안 될 경우 1초 뒤에 끊어버려서 서버 멈춤을 방지합니다.
+        with serial.Serial(ARDUINO_PORT, BAUD_RATE, timeout=1) as ser:
+            command = "0\n" # 줄바꿈 문자 포함 (아두이노 코드에 따라 필요할 수 있음)
+            ser.write(command.encode()) # 바이트로 변환하여 전송
+            print(f">>> [Direct] 아두이노로 '0' 전송 성공")
+            
+    except serial.SerialException as e:
+        # 포트가 없거나, 이미 다른 곳에서 사용 중일 때 발생
+        print(f">>> [Error] 아두이노 연결 실패: {e}")
+        # 아두이노 연결 실패가 점수 저장을 막으면 안 되므로 에러를 띄우지 않고 넘어갑니다.
+        # 필요하다면 raise HTTPException(...) 처리를 해도 됩니다.
+
+    # [2] 결과 반환
     return {
         "status": "ok",
         "message": "점수 저장 완료",

@@ -10,7 +10,7 @@ import sys, os
 
 router = APIRouter(tags=["game"])
 
-ARDUINO_PORT = '/dex/ttyACM0'  # 윈도우라면 COM3, 라즈베리파이라면 /dev/ttyACM0 등
+ARDUINO_PORT = '/dev/ttyACM0'  # 윈도우라면 COM3, 라즈베리파이라면 /dev/ttyACM0 등
 BAUD_RATE = 9600
 
 # ==============================================
